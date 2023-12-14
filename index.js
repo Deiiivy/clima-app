@@ -7,22 +7,20 @@ const nameCountry = document.querySelector('#country')
 form.addEventListener('submit', (e) => {
     e.preventDefault()
 
-    if(nameCity.value === '' || nameCountry.value === ''){
-        showError('los campos estan vacios')
+    if(nameCity.value === ''){
+        mostrarError('los campos estan vacios')
         return
     }
 
 
-    callAPI(nameCity.value, nameCountry.value)
-    /* console.log(nameCity.value);
-    console.log(country.value) */
+    llamarAPI(nameCity.value)
+    console.log(nameCity.value);
 })
 
 
-function callAPI(city, country){
+function llamarAPI(city){
     const API = '7246eab1f60e397c2a4a0d6038081979'
-    const url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API}`;
-    
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API}`
 
     fetch(url)
     .then(data => {
@@ -30,39 +28,35 @@ function callAPI(city, country){
     })
     .then(dataJSON => {
         if (dataJSON.cod === '404') {
-            showError('ciudad no encotrada')
-        }else {
-            clearHTML()
+            mostrarError('ciudad no encontrada') 
+        } else {
             showWeather(dataJSON)
         }
-        /* console.log(dataJSON); */
     })
+    .catch(error => {
+        mostrarError('Hubo un error en la solicitud') 
+    });
 }
+
 
 function showWeather(data){
 
-    const {name, main:{temp, temp_min, temp_max}, weather:[arr]} = data
+    const {name, main:{temp, humidity, pressure, viento}} = data
     const content = document.createElement('div')
 
-    const grados = kelvinToCentigrade(temp)
-    const min = kelvinToCentigrade(temp_min)
-    const max = kelvinToCentigrade(temp_max)
     
-    content.innerHTML = `<h5>Clima en ${name}</h5>
-    <img src="https://openweathermap.org/img/wn/${arr.icon}@2x.png" alt="icon" >
-    <h2>${grados}</h2>
-    <p>Max: ${max}</p>
-    <p>Min: ${min}</p> `
+    content.innerHTML = `<h5 style="color:white" >Clima en ${name}</h5>
+    <h2>temperatura: ${temp}</h2>
+    <h2>humedad: ${humidity}</h2>
+    <h2>presion atmosferica: ${pressure}</h2>`
+    
 
     result.appendChild(content)
-    /* console.log(name);
+    console.log(name);
     console.log(temp);
-    console.log(temp_min);
-    console.log(temp_max);
-    console.log(arr.icon); */
 }
 
-function showError(message) {
+function mostrarError(message) {
     console.log(message);
     const alertError = document.createElement('p')
     alertError.classList.add('alert-message')
@@ -74,10 +68,5 @@ function showError(message) {
     },3000)
 }
 
-function kelvinToCentigrade(temp){
-    return parseInt(temp - 273.15);
-}
 
-function clearHTML(){
-    result.innerHTML = ''
-}
+
